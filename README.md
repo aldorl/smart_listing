@@ -159,7 +159,7 @@ In order to allow managing and editing list items, we need to reorganize our vie
         %th
     %tbody
       - smart_listing.collection.each do |user|
-        %tr.editable{data: {id: user.id}}
+        %tr.smart_editable{data: {id: user.id}}
           = smart_listing.render partial: 'users/user', locals: {user: user}
       = smart_listing.item_new colspan: 3, link: new_user_path 
 
@@ -168,7 +168,7 @@ In order to allow managing and editing list items, we need to reorganize our vie
   %p.warning No records!
 ```
 
-`<tr>` has now `editable` class and `data-id` attribute. These are essential to make it work. We've used also a new helper: `Builder#new_item`. It renders new row which is used for adding new items. `:link` needs to be valid url to new resource action which renders JS:
+`<tr>` has now `smart_editable` class and `data-id` attribute. These are essential to make it work. We've used also a new helper: `Builder#new_item`. It renders new row which is used for adding new items. `:link` needs to be valid url to new resource action which renders JS:
 
 ```ruby
 <%= smart_listing_item :users, :new, @new_user, "users/form" %>

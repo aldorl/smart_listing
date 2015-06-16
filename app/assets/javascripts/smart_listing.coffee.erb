@@ -42,14 +42,14 @@ class window.SmartListing
     @container.on "ajax:success", (e) =>
       if $(e.target).is("#{SmartListing.config.class_name("item_actions")} #{SmartListing.config.selector("item_action_destroy")}")
         # handle HEAD OK response for deletion request
-        editable = $(e.target).closest(SmartListing.config.class_name("editable"))
-        if @container.find(SmartListing.config.class_name("editable")).length == 1
+        smart_editable = $(e.target).closest(SmartListing.config.class_name("smart_editable"))
+        if @container.find(SmartListing.config.class_name("smart_editable")).length == 1
           @reload()
           return false
         else
-          editable.remove()
+          smart_editable.remove()
 
-          @container.trigger("smart_listing:destroy", editable)
+          @container.trigger("smart_listing:destroy", smart_editable)
 
         @changeItemCount(-1)
         @refresh()
@@ -58,10 +58,10 @@ class window.SmartListing
         return false
 
     @container.on "click", SmartListing.config.selector("edit_cancel"), (event) =>
-      editable = $(event.currentTarget).closest(SmartListing.config.class_name("editable"))
-      if(editable.length > 0)
+      smart_editable = $(event.currentTarget).closest(SmartListing.config.class_name("smart_editable"))
+      if(smart_editable.length > 0)
         # Cancel edit
-        @cancelEdit(editable)
+        @cancelEdit(smart_editable)
       else
         # Cancel new record
         @container.find(SmartListing.config.class_name("new_item_placeholder")).addClass(SmartListing.config.class("hidden"))
@@ -117,11 +117,11 @@ class window.SmartListing
     @container.data(SmartListing.config.data_attribute("item_count"), count)
     @container.find(SmartListing.config.selector("pagination_count")).html(count)
 
-  cancelEdit: (editable) =>
-    if editable.data(SmartListing.config.data_attribute("inline_edit_backup"))
-      editable.html(editable.data(SmartListing.config.data_attribute("inline_edit_backup")))
-      editable.removeClass(SmartListing.config.class("inline_editing"))
-      editable.removeData(SmartListing.config.data_attribute("inline_edit_backup"))
+  cancelEdit: (smart_editable) =>
+    if smart_editable.data(SmartListing.config.data_attribute("inline_edit_backup"))
+      smart_editable.html(smart_editable.data(SmartListing.config.data_attribute("inline_edit_backup")))
+      smart_editable.removeClass(SmartListing.config.class("inline_editing"))
+      smart_editable.removeData(SmartListing.config.data_attribute("inline_edit_backup"))
   
   # Callback called when record is added/deleted using ajax request
   refresh: () =>
@@ -170,8 +170,8 @@ class window.SmartListing
   registerPopover: (name, callback) =>
     @popovers[name] = callback
 
-  editable: (id) =>
-    @container.find("#{SmartListing.config.class_name("editable")}[data-#{SmartListing.config.data_attribute("id")}=#{id}]")
+  smart_editable: (id) =>
+    @container.find("#{SmartListing.config.class_name("smart_editable")}[data-#{SmartListing.config.data_attribute("id")}=#{id}]")
 
   #################################################################################################
   # Methods executed by rails UJS:
@@ -181,7 +181,7 @@ class window.SmartListing
       new_item_action = @container.find(SmartListing.config.class_name("new_item_action"))
       new_item_placeholder = @container.find(SmartListing.config.class_name("new_item_placeholder")).addClass(SmartListing.config.class("hidden"))
 
-      @container.find(SmartListing.config.class_name("editable")).each (i, v) =>
+      @container.find(SmartListing.config.class_name("smart_editable")).each (i, v) =>
         @cancelEdit($(v))
 
       new_item_action.addClass(SmartListing.config.class("hidden"))
@@ -199,7 +199,7 @@ class window.SmartListing
       new_item_placeholder.addClass(SmartListing.config.class("hidden"))
       new_item_action.removeClass(SmartListing.config.class("hidden"))
 
-      new_item = $(SmartListing.config.element_template("row")).addClass(SmartListing.config.class("editable"))
+      new_item = $(SmartListing.config.element_template("row")).addClass(SmartListing.config.class("smart_editable"))
       new_item.attr("data-#{SmartListing.config.data_attribute("id")}", id)
       new_item.html(content)
 
@@ -223,34 +223,34 @@ class window.SmartListing
     @fadeLoaded()
 
   edit: (id, content) =>
-    @container.find(SmartListing.config.class_name("editable")).each (i, v) =>
+    @container.find(SmartListing.config.class_name("smart_editable")).each (i, v) =>
       @cancelEdit($(v))
     @container.find(SmartListing.config.class_name("new_item_placeholder")).addClass(SmartListing.config.class("hidden"))
     @container.find(SmartListing.config.class_name("new_item_action")).removeClass(SmartListing.config.class("hidden"))
 
-    editable = @editable(id)
-    editable.data(SmartListing.config.data_attribute("inline_edit_backup"), editable.html())
-    editable.html(content)
-    editable.addClass(SmartListing.config.class("inline_editing"))
+    smart_editable = @smart_editable(id)
+    smart_editable.data(SmartListing.config.data_attribute("inline_edit_backup"), smart_editable.html())
+    smart_editable.html(content)
+    smart_editable.addClass(SmartListing.config.class("inline_editing"))
 
-    @container.trigger("smart_listing:edit", editable)
+    @container.trigger("smart_listing:edit", smart_editable)
 
     @fadeLoaded()
 
   update: (id, success, content) =>
-    editable = @editable(id)
+    smart_editable = @smart_editable(id)
     if success
-      editable.removeClass(SmartListing.config.class("inline_editing"))
-      editable.removeData(SmartListing.config.data_attribute("inline_edit_backup"))
-      editable.html(content)
+      smart_editable.removeClass(SmartListing.config.class("inline_editing"))
+      smart_editable.removeData(SmartListing.config.data_attribute("inline_edit_backup"))
+      smart_editable.html(content)
 
-      @container.trigger("smart_listing:update:success", editable)
+      @container.trigger("smart_listing:update:success", smart_editable)
 
       @refresh()
     else
-      editable.html(content)
+      smart_editable.html(content)
 
-      @container.trigger("smart_listing:update:fail", editable)
+      @container.trigger("smart_listing:update:fail", smart_editable)
 
     @fadeLoaded()
   
@@ -258,10 +258,10 @@ class window.SmartListing
     # No need to do anything here, already handled by ajax:success handler
 
   remove: (id) =>
-    editable = @editable(id)
-    editable.remove()
+    smart_editable = @smart_editable(id)
+    smart_editable.remove()
 
-    @container.trigger("smart_listing:remove", editable)
+    @container.trigger("smart_listing:remove", smart_editable)
   
   update_list: (content, data) =>
     @container.data(SmartListing.config.data_attribute("params"), $.extend(@container.data(SmartListing.config.data_attribute("params")), data[SmartListing.config.data_attribute("params")]))
@@ -328,14 +328,14 @@ $.fn.smart_listing.showConfirmation = (confirmation_elem, msg, confirm_callback)
     deletion_popover.append($("<p/>")
       .append($("<button/>").html("Yes").addClass("btn btn-danger ").click (event) =>
         # set @confirmed element and emulate click on icon
-        editable = $(event.currentTarget).closest(SmartListing.config.class_name("editable"))
+        smart_editable = $(event.currentTarget).closest(SmartListing.config.class_name("smart_editable"))
         confirm_callback(confirmation_elem)
         $(confirmation_elem).click()
         $(confirmation_elem).popover("destroy")
       )
       .append(" ")
       .append($("<button/>").html("No").addClass("btn btn-small").click (event) =>
-        editable = $(event.currentTarget).closest(SmartListing.config.class_name("editable"))
+        smart_editable = $(event.currentTarget).closest(SmartListing.config.class_name("smart_editable"))
         $(confirmation_elem).popover("destroy")
       )
     )
